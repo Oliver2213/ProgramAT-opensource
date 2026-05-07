@@ -1,6 +1,6 @@
 # Microsoft Open Source Code of Conduct
 
-This project has adopted the [Microsoft Open Source Code of Conduct][02].
+This project has adopted the [Microsoft Open Source Code of Conduct][01], which is based on the [Contributor Covenant][03].
 
 We pledge to act and interact in ways that contribute to an open, welcoming, diverse, inclusive, and
 healthy community.
@@ -32,13 +32,12 @@ Examples of unacceptable behavior include:
 
 ## Resources
 
-- [Microsoft Open Source Code of Conduct][02]
-- [Microsoft Code of Conduct FAQ][03]
-- Contact [opencode@microsoft.com][04] with questions or concerns
-- Employees can reach out at [aka.ms/opensource/moderation-support][01]
+- [Microsoft Open Source Code of Conduct][01]
+- [Microsoft Code of Conduct FAQ][02]
+- [Contributor Covenant v2.0][03]
+
 
 <!--  link references -->
-[01]: https://aka.ms/opensource/moderation-support
-[02]: https://opensource.microsoft.com/codeofconduct/
-[03]: https://opensource.microsoft.com/codeofconduct/faq/
-[04]: mailto:opencode@microsoft.com
+[01]: https://opensource.microsoft.com/codeofconduct/
+[02]: https://opensource.microsoft.com/codeofconduct/faq/
+[03]: https://www.contributor-covenant.org/version/2/0/code_of_conduct/
