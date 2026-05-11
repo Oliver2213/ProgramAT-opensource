@@ -1,0 +1,74 @@
+name: Check maintainer approval
+
+on:
+  pull_request_review:
+    types: [submitted, dismissed]
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  pull-requests: read
+  contents: read
+
+jobs:
+  check-maintainer-approval:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate approvals
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const maintainers = [
+              "seehorne",
+              "guoanhong",
+              "venkateshpotluri",
+              "jayhersk",
+              "yushanwe"
+            ];
+
+            const pr = context.payload.pull_request;
+            const body = pr.body || "";
+
+            const coreCodeCheckbox =
+              /-\s*\[[xX]\]\s*This contribution is new upstream code for the server or the app/.test(body);
+
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              per_page: 100
+            });
+
+            const latestReviewByUser = new Map();
+
+            for (const review of reviews) {
+              latestReviewByUser.set(review.user.login, review.state);
+            }
+
+            const approvers = [...latestReviewByUser.entries()]
+              .filter(([_, state]) => state === "APPROVED")
+              .map(([login]) => login);
+
+            if (approvers.length < 3) {
+              core.setFailed(`This PR needs at least 3 approvals. Current approvals: ${approvers.length}.`);
+              return;
+            }
+
+            if (!coreCodeCheckbox) {
+              core.info("Non-core contribution with at least 3 approvals; passing.");
+              return;
+            }
+
+            const hasMaintainerApproval = approvers.some(login =>
+              maintainers.includes(login)
+            );
+
+            if (!hasMaintainerApproval) {
+              core.setFailed(
+                "Core codebase changes need at least 3 approvals, including at least one maintainer approval."
+              );
+              return;
+            }
+
+            core.info("Core codebase change has 3 approvals including a maintainer; passing.");
