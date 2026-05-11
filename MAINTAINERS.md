@@ -22,6 +22,6 @@
     * [Personal site](https://jayl.in/)
 
  * Yushan Wei
-    * Undergraduate, University of Michigan [Computer Science and Engineering (CSE)](https://cse.engin.umich.edu/) and [Mechanical Engineering](https://me.engin.umich.edu/)
+    * Undergraduate, University of Michigan [Computer Science and Engineering (CSE)](https://cse.engin.umich.edu/)
     * [Github username: yushanwe](https://github.com/yushanwe)
   
