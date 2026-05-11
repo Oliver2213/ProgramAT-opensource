@@ -3707,6 +3707,13 @@ async def handle_client(websocket):
             'server_time': datetime.now().isoformat()
         }))
         session_log.log_message("send", "connection", "Welcome message sent")
+
+        # Send server capabilities so the app can show/hide features accordingly
+        await websocket.send(json.dumps({
+            'type': 'server_capabilities',
+            'capabilities': SERVER_CAPABILITIES
+        }))
+        session_log.log_message("send", "server_capabilities", json.dumps(SERVER_CAPABILITIES))
         
         async for message in websocket:
             try:
