@@ -26,8 +26,14 @@ jobs:
               "jayhersk",
               "yushanwe"
             ];
-
             const pr = context.payload.pull_request;
+            const author = pr.user.login;
+            
+            if (maintainers.includes(author)) {
+              core.info(`PR author ${author} is a maintainer — auto-passing checks.`);
+            return;
+            }
+            
             const body = pr.body || "";
 
             const coreCodeCheckbox =
