@@ -19,8 +19,11 @@ export type AppMode = 'development' | 'production' | 'review';
 export const MAIN_DEV_SERVER_URL = 'ws://34.144.178.116:8080';
 
 // Server configuration mapping - secret codes to server URLs
-// Add new servers here as needed
+// For self-hosting: add entries mapping secret codes to your server URLs.
+// Example: 'mysecret123': { url: 'ws://10.0.0.1:8080', name: 'My Server' }
+// Users must enter a server URL manually in Settings if no matching code is found.
 export const SERVER_CONFIGS: Record<string, { url: string; name: string }> = {
+  // Add servers with secret codes for self-hosting
   // Default server (no code needed)
   'default': {
     url: 'ws://34.144.178.116:8080',
