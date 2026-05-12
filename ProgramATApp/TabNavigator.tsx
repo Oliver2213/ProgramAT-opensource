@@ -63,22 +63,26 @@ export default function TabNavigator({
     setAppMode(newMode);
     Config.APP_MODE = newMode;
     
-    // If switching to production and on prs tab, go to tools
+    // Production: go to tools (no PR tab)
     if (newMode === 'production' && activeTab === 'prs') {
       setActiveTab('tools');
+    }
+    // Review: land on PRs tab so user can pick a PR to review
+    if (newMode === 'review') {
+      setActiveTab('prs');
     }
   };
 
   const renderContent = () => {
     switch (activeTab) {
       case 'prs':
-        // Only show in dev mode, fallback to tools in production
-        if (appMode !== 'development') {
+        // Only show in dev/review mode, fallback to tools in production
+        if (appMode === 'production') {
           return (
             <ToolsAndRunner 
               issueTools={issueTools}
-              productionMode={appMode === 'production'}
-              isActive={true} // In production, we're in the fallback view
+              productionMode={true}
+              isActive={true}
               selectedIssue={selectedIssue}
             />
           );
@@ -96,6 +100,7 @@ export default function TabNavigator({
             copilotSummaries={copilotSummaries}
             copilotLogs={copilotLogs}
             onClearCopilotData={onClearCopilotData}
+            appMode={appMode}
           />
         );
       case 'tools':
@@ -116,7 +121,7 @@ export default function TabNavigator({
       case 'chat':
         return <Chat webSocketService={WebSocketService} initialConversationId={pendingConversationId || undefined} />;
       default:
-        return appMode === 'development' 
+        return appMode !== 'production'
           ? <PRsAndText 
               serverFeedback={serverFeedback} 
               selectedIssue={selectedIssue} 
@@ -128,6 +133,7 @@ export default function TabNavigator({
               copilotSummaries={copilotSummaries}
               copilotLogs={copilotLogs}
               onClearCopilotData={onClearCopilotData}
+              appMode={appMode}
             />
           : <ToolsAndRunner issueTools={issueTools} productionMode={true} isActive={true} selectedIssue={selectedIssue} onNavigateToChat={(conversationId) => {
               setPendingConversationId(conversationId || null);
@@ -153,8 +159,8 @@ export default function TabNavigator({
           }
         ]} 
         accessibilityRole="tablist">
-        {/* PRs tab - only show in development mode */}
-        {appMode === 'development' && (
+        {/* PRs tab - show in development and review mode */}
+        {appMode !== 'production' && (
           <TouchableOpacity
             style={[styles.tab, activeTab === 'prs' && styles.activeTab]}
             onPress={() => setActiveTab('prs')}

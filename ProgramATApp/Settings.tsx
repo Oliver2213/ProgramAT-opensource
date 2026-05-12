@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Config, { AppMode } from './config';
+import Config, { AppMode, MAIN_DEV_SERVER_URL } from './config';
 import WebSocketService from './WebSocketService';
 import { useTheme } from './ThemeContext';
 
@@ -96,26 +96,50 @@ export default function Settings({ appMode, onModeChange }: SettingsProps) {
     );
   };
 
-  const handleModeSwitch = () => {
-    const newMode: AppMode = appMode === 'development' ? 'production' : 'development';
-    
+  const handleModeSwitch = (targetMode: AppMode) => {
+    const modeDescriptions: Record<AppMode, string> = {
+      development: '• Full development features\n• PR and branch selection\n• Create and test new tools\n• Connects to your own server',
+      production: '• Only main branch tools available\n• Simplified interface\n• Production-ready tools only\n• Connects to your own server',
+      review: '• Browse community tools on main server\n• Submit yes/no reviews on open PRs\n• Cannot create or edit tools\n• Connects to main dev server',
+    };
+    const modeLabels: Record<AppMode, string> = {
+      development: '🔧 Development',
+      production: '🚀 Production',
+      review: '🔍 Review',
+    };
+
     Alert.alert(
-      'Switch App Mode?',
-      `Switch to ${newMode} mode?\n\n` +
-      (newMode === 'production' 
-        ? '• Text Input tab will be hidden\n• Issues tab will be hidden\n• Tools will only load from main branch\n• Production tools only'
-        : '• Text Input tab will be shown\n• Issues tab will be shown\n• Tools can load from any PR/branch\n• Full development features enabled'),
+      `Switch to ${modeLabels[targetMode]}?`,
+      modeDescriptions[targetMode],
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Switch',
-          onPress: () => {
-            onModeChange(newMode);
-            Alert.alert(
-              'Mode Changed',
-              `Now running in ${newMode} mode`,
-              [{ text: 'OK' }]
-            );
+          onPress: async () => {
+            // Handle server URL swap
+            if (targetMode === 'review') {
+              // Save current server URL so we can restore it later
+              const current = await AsyncStorage.getItem(SERVER_URL_KEY);
+              if (current) {
+                await AsyncStorage.setItem('@saved_server_url', current);
+              }
+              await AsyncStorage.setItem(SERVER_URL_KEY, MAIN_DEV_SERVER_URL);
+              WebSocketService.setServerUrl(MAIN_DEV_SERVER_URL, true);
+            } else if (appMode === 'review') {
+              // Leaving review — restore individual server URL
+              const saved = await AsyncStorage.getItem('@saved_server_url');
+              if (saved) {
+                await AsyncStorage.setItem(SERVER_URL_KEY, saved);
+                await AsyncStorage.removeItem('@saved_server_url');
+                WebSocketService.setServerUrl(saved, true);
+                setServerUrl(saved);
+              } else {
+                setServerUrl('');
+              }
+            }
+
+            onModeChange(targetMode);
+            Alert.alert('Mode Changed', `Now running in ${modeLabels[targetMode]} mode`, [{ text: 'OK' }]);
           }
         }
       ]
@@ -210,36 +234,48 @@ export default function Settings({ appMode, onModeChange }: SettingsProps) {
               <Text style={[styles.settingLabel, { color: theme.text }]}>Current Mode</Text>
               <View style={[
                 styles.modeBadge,
-                appMode === 'production' ? styles.productionBadge : styles.developmentBadge,
-                { backgroundColor: (appMode === 'production' ? theme.primary : theme.info) + '20' }
+                { backgroundColor: (appMode === 'production' ? theme.primary : appMode === 'review' ? theme.warning : theme.info) + '20' }
               ]}>
-                <Text style={[styles.modeBadgeText, { color: appMode === 'production' ? theme.primary : theme.info }]}>
-                  {appMode === 'production' ? '🚀 Production' : '🔧 Development'}
+                <Text style={[styles.modeBadgeText, { color: appMode === 'production' ? theme.primary : appMode === 'review' ? theme.warning : theme.info }]}>
+                  {appMode === 'production' ? '🚀 Production' : appMode === 'review' ? '🔍 Review' : '🔧 Development'}
                 </Text>
               </View>
             </View>
-            
-            <TouchableOpacity
-              style={[styles.switchButton, { backgroundColor: theme.primary }]}
-              onPress={handleModeSwitch}
-              accessible={true}
-              accessibilityRole="button"
-              accessibilityLabel={`Switch to ${appMode === 'development' ? 'production' : 'development'} mode`}
-              accessibilityHint="Double tap to change app mode">
-              <Text style={styles.switchButtonText} accessible={false}>
-                Switch to {appMode === 'development' ? 'Production' : 'Development'}
-              </Text>
-            </TouchableOpacity>
+
+            <View style={styles.modeButtonRow}>
+              {(['development', 'production', 'review'] as AppMode[]).map((mode) => (
+                <TouchableOpacity
+                  key={mode}
+                  style={[
+                    styles.modeButton,
+                    appMode === mode
+                      ? { backgroundColor: theme.primary }
+                      : { backgroundColor: theme.backgroundSecondary, borderColor: theme.border, borderWidth: 1 }
+                  ]}
+                  onPress={() => appMode !== mode && handleModeSwitch(mode)}
+                  disabled={appMode === mode}
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Switch to ${mode} mode`}
+                  accessibilityState={{ selected: appMode === mode }}>
+                  <Text style={[styles.modeButtonText, { color: appMode === mode ? '#fff' : theme.textSecondary }]}>
+                    {mode === 'development' ? '🔧 Dev' : mode === 'production' ? '🚀 Prod' : '🔍 Review'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
 
           <View style={[styles.modeDescription, { backgroundColor: theme.backgroundSecondary }]}>
             <Text style={[styles.modeDescriptionTitle, { color: theme.text }]}>
-              {appMode === 'production' ? 'Production Mode' : 'Development Mode'}
+              {appMode === 'production' ? 'Production Mode' : appMode === 'review' ? 'Review Mode' : 'Development Mode'}
             </Text>
             <Text style={[styles.modeDescriptionText, { color: theme.textSecondary }]}>
-              {appMode === 'production' 
-                ? '• Only main branch tools available\n• Simplified interface\n• Production-ready tools only'
-                : '• Full development features\n• PR and branch selection\n• Create and test new tools'}
+              {appMode === 'production'
+                ? '• Only main branch tools available\n• Simplified interface\n• Production-ready tools only\n• Connects to your own server'
+                : appMode === 'review'
+                ? '• Browse community tools on main server\n• Submit yes/no reviews on open PRs\n• Cannot create or edit tools\n• Connects to main dev server'
+                : '• Full development features\n• PR and branch selection\n• Create and test new tools\n• Connects to your own server'}
             </Text>
           </View>
         </View>
@@ -289,7 +325,8 @@ export default function Settings({ appMode, onModeChange }: SettingsProps) {
             </TouchableOpacity>
           </View>
 
-          {/* Server URL Input */}
+          {/* Server URL Input — hidden in review mode (URL managed automatically) */}
+          {appMode !== 'review' && (<>
           <View style={[styles.secretCodeSection, { backgroundColor: theme.card, borderColor: theme.border }]}>
             <Text style={[styles.secretCodeLabel, { color: theme.text }]}>Server URL</Text>
             <Text style={[styles.settingDescription, { color: theme.textSecondary, marginBottom: 8 }]}>
@@ -340,6 +377,7 @@ export default function Settings({ appMode, onModeChange }: SettingsProps) {
               </TouchableOpacity>
             )}
           </View>
+          </>)}
 
           <View style={[styles.serverInfo, { backgroundColor: theme.backgroundSecondary }]}>
             <Text style={[styles.serverInfoLabel, { color: theme.textSecondary }]} accessible={false}>Active URL:</Text>
@@ -619,6 +657,21 @@ const styles = StyleSheet.create({
   resetServerButtonText: {
     color: '#fff',
     fontSize: 14,
+    fontWeight: '600',
+  },
+  modeButtonRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 12,
+  },
+  modeButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  modeButtonText: {
+    fontSize: 13,
     fontWeight: '600',
   },
 });
