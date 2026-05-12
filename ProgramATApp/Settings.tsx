@@ -132,6 +132,9 @@ export default function Settings({ appMode, onModeChange }: SettingsProps) {
                 await AsyncStorage.setItem(SERVER_URL_KEY, saved);
                 await AsyncStorage.removeItem('@saved_server_url');
                 WebSocketService.setServerUrl(saved, true);
+                setServerUrl(saved);
+              } else {
+                setServerUrl('');
               }
             }
 
@@ -322,7 +325,8 @@ export default function Settings({ appMode, onModeChange }: SettingsProps) {
             </TouchableOpacity>
           </View>
 
-          {/* Server URL Input */}
+          {/* Server URL Input — hidden in review mode (URL managed automatically) */}
+          {appMode !== 'review' && (<>
           <View style={[styles.secretCodeSection, { backgroundColor: theme.card, borderColor: theme.border }]}>
             <Text style={[styles.secretCodeLabel, { color: theme.text }]}>Server URL</Text>
             <Text style={[styles.settingDescription, { color: theme.textSecondary, marginBottom: 8 }]}>
@@ -373,6 +377,7 @@ export default function Settings({ appMode, onModeChange }: SettingsProps) {
               </TouchableOpacity>
             )}
           </View>
+          </>)}
 
           <View style={[styles.serverInfo, { backgroundColor: theme.backgroundSecondary }]}>
             <Text style={[styles.serverInfoLabel, { color: theme.textSecondary }]} accessible={false}>Active URL:</Text>
