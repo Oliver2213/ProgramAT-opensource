@@ -28,26 +28,33 @@ This is a React Native app that facilitates AT creation, iteration, and testing 
 
 ### Installation
 
-1. **Clone the repository**
+1. **Fork this repository**
+   This is easiest to do from the Github website. 
+   First, select the button that says Fork.
+   Once you have done so, it will take you to an interface where you can select the owner and name of the fork. By default, this is your username for owner, and `ProgramAT-opensource` for the repository name. We recommend leaving these defaults intact, but you can change them if you would like.
+   Then, click the button that says Create Fork.
+   After a few seconds, a copy of the repository will be made in your Github account.
+
+2. **Clone the repository**
    ```bash
-   git clone https://github.com/program-at/ProgramAT-opensource.git
+   git clone https://github.com/your-username/ProgramAT-opensource.git
    cd ProgramAT-opensource
    ```
 
-2. Optional (required if you are building the app): **Install React Native dependencies**
+3. Optional (required if you are building the app): **Install React Native dependencies**
    ```bash
    cd ProgramATApp
    npm install
    ```
 
-3. Optional (required if you are building the app): **Install iOS dependencies (iOS only)**
+4. Optional (required if you are building the app): **Install iOS dependencies (iOS only)**
    ```bash
    cd ios
    pod install
    cd ..
    ```
 
-4. **Set up the backend**
+5. **Set up the backend**
    ```bash
    cd ../backend
    python3 -m venv .venv
@@ -55,12 +62,12 @@ This is a React Native app that facilitates AT creation, iteration, and testing 
    pip install -r requirements.txt
    ```
 
-5. **Create the backend `.env` file**
+6. **Create the backend `.env` file**
    ```bash
    cp .env.example .env
    ```
 
-6. **Fill in the values in `backend/.env`**
+7. **Fill in the values in `backend/.env`**
    - `GEMINI_API_KEY`
    - `GITHUB_TOKEN`
    - `GITHUB_REPO`
