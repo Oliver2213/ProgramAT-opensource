@@ -143,11 +143,20 @@ Security notes:
 
 ### Running the Application
 
-#### Run the server
+You can skip to step 3 if ngrok is already installed and configured.
 
-If you have already completed the Installation section above:
+1. **Install ngrok**
+   Download ngrok for your system from <https://ngrok.com/download> and make sure `ngrok version` works in your terminal.
 
-1. **Activate the virtual environment and start the backend server**
+2. **Connect ngrok to your account**
+   Follow the instructions on the downloading page to sign up for an account and get your authtoken in the ngrok dashboard. Configure it in your terminal.
+
+   ```bash
+   ngrok config add-authtoken YOUR_NGROK_AUTHTOKEN
+   ```
+
+3. **Activate the virtual environment and start the backend server**
+
    ```bash
    cd backend
    source .venv/bin/activate
@@ -156,56 +165,28 @@ If you have already completed the Installation section above:
 
    The server listens on `0.0.0.0:8080` by default.
 
-#### If you want to run the app locally for development
+4. **Start the ngrok tunnel**
 
-1. **Install React Native dependencies**
    ```bash
-   cd ProgramATApp
-   npm install
+   ngrok http 8080
    ```
 
-2. **Start Metro**
-   ```bash
-   npm start
-   ```
+   Keep this terminal open. ngrok will print a forwarding address, which is the public address your app should connect to.
 
-3. **Run the app on a device or emulator**
-   - Android: `npm run android`
-   - iOS: `npm run ios` on macOS only
-
-#### WSL networking notes
-
-- If you run the app on an Android emulator, point the WebSocket server URL to `ws://10.0.2.2:8080`.
-- If you run the app on a physical phone, use the IP address of the machine or WSL2 instance that can be reached from the phone.
-- If you want to use the built-in server presets, update `ProgramATApp/config.ts` with a local server entry or change the default WebSocket URL.
-
-### Configuration (will be updated closer to event)
-
-Server URLs are managed in `ProgramATApp/config.ts`. The app supports multiple named servers selectable via a secret code in Settings:
-
-```typescript
-export const SERVER_CONFIGS: Record<string, { url: string; name: string }> = {
-  'default': { url: 'ws://YOUR_SERVER_IP:8080', name: 'Default Server' },
-};
-```
-
-Switch between **Development** and **Production** modes in the Settings tab.
+5. **Paste the forwarding address into the app**
+   Change the prefix of the forwarding address from **https** to **wss** because we are using a websocket. Open ProgramAT app on your mobile device, go to the server address field in Settings, paste the ngrok forwarding address, and tap **Connect**.
 
 ## Usage
 
-1. **Connect** — The app auto-connects to the configured server on launch. Connection status is shown in the UI; a loading sound plays while connecting.
+1. **Select a Tool** — Navigate to the **Tools** tab, browse the available tools, and tap one to select it.
 
-2. **Select a Tool** — Navigate to the **Tools** tab, browse the available tools, and tap one to select it.
+2. **Run** — The Tool Runner opens with a live camera preview. Tap **Run** to execute the tool on single frames, or **Stream** to process frames continuously. Results are spoken aloud via TTS.
 
-3. **Run** — The Tool Runner opens with a live camera preview. Tap **Run** to execute the tool on single frames, or **Stream** to process frames continuously. Results are spoken aloud via TTS.
+3. **Chat** — After a tool run, tap **Chat** to ask follow-up questions about the result (powered by Gemini).
 
-4. **Chat** — After a tool run, tap **Chat** to ask follow-up questions about the result (powered by Gemini).
-
-5. **Development mode** — Use the **PRs** tab to browse open pull requests, select one to load its tools, and send text updates to GitHub issues.
+4. **Development mode** — Use the **PRs** tab to browse open pull requests, select one to load its tools, and send text updates to GitHub issues.
 
 Creation instructions coming soon.
-
-
  
 ## Supported Input Modes
 
