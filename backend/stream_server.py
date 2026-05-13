@@ -3985,6 +3985,9 @@ async def handle_client(websocket):
                     pr_number = data.get('pr_number')
                     approved = data.get('approved', False)
                     comment = data.get('comment', '').strip()
+                    # In review mode the app passes target_repo so the user's server
+                    # posts to the general repo's PR using the user's own GITHUB_TOKEN.
+                    target_repo_name = data.get('target_repo') or GITHUB_REPO
                     if not pr_number:
                         await websocket.send(json.dumps({
                             'type': 'error',
@@ -3993,12 +3996,12 @@ async def handle_client(websocket):
                         }))
                         continue
                     try:
-                        repo = g.get_repo(GITHUB_REPO)
+                        repo = g.get_repo(target_repo_name)
                         pr = repo.get_pull(int(pr_number))
                         github_event = 'APPROVE' if approved else 'REQUEST_CHANGES'
                         review_body = comment if comment else ('Looks good!' if approved else 'Please address the noted issues.')
                         pr.create_review(body=review_body, event=github_event)
-                        logger.info(f"Client {client_id} submitted {github_event} review for PR #{pr_number}")
+                        logger.info(f"Client {client_id} submitted {github_event} review for PR #{pr_number} on {target_repo_name}")
                         await websocket.send(json.dumps({
                             'type': 'review_submitted',
                             'pr_number': pr_number,
@@ -5135,7 +5138,7 @@ async def main():
         ping_timeout=10    # Wait 10 seconds for pong response
     ):
         logger.info("Server started successfully")
-        logger.info(f"Clients can connect to: ws://<your-server-ip>:{PORT}")
+        logger.info(f"Clients can connect to: ws://34.144.178.116:{PORT}")
         logger.info(f"Max message size: 20MB")
         
         # Start background tasks independently for resilience

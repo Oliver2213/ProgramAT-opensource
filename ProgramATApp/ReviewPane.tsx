@@ -16,6 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from './ThemeContext';
 import WebSocketService from './WebSocketService';
+import Config from './config';
 
 interface ReviewPaneProps {
   prNumber: number;
@@ -47,7 +48,14 @@ export default function ReviewPane({ prNumber, prTitle, onBack }: ReviewPaneProp
           text: 'Submit',
           onPress: async () => {
             setSubmitting(true);
-            const result = await WebSocketService.submitToolReview(prNumber, verdict === 'approve', comment.trim());
+            // In review mode, the user's server must post to the general repo's PR.
+            // Pass REVIEW_GITHUB_REPO so stream_server uses it instead of its own GITHUB_REPO.
+            const result = await WebSocketService.submitToolReview(
+              prNumber,
+              verdict === 'approve',
+              comment.trim(),
+              Config.APP_MODE === 'review' ? Config.REVIEW_GITHUB_REPO : undefined
+            );
             setSubmitting(false);
             if (result.success) {
               setSubmitted(true);
