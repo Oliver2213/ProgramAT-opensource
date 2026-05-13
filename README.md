@@ -89,7 +89,7 @@ Instead of using `backend/.env`, you can export the variables in your shell befo
 export GEMINI_API_KEY="your_key_here"
 export GITHUB_TOKEN="your_token_here"
 export GITHUB_REPO="username/your-programat-fork"
-export GOOGLE_APPLICATION_CREDENTIALS="/path/to/credentials.json"
+export GOOGLE_APPLICATION_CREDENTIALS="/home/username/path/to/credentials.json"
 ```
 
 **Windows PowerShell:**
