@@ -49,6 +49,52 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
+def _normalize_custom_gpt_value(value) -> str:
+    """Normalize custom_gpt answers into 'yes', 'no', or ''."""
+    if isinstance(value, bool):
+        return 'yes' if value else 'no'
+
+    if value is None:
+        return ''
+
+    text = str(value).strip().lower()
+    if not text:
+        return ''
+
+    if re.search(r'\b(yes|yeah|yep|yup|true|affirmative)\b', text):
+        return 'yes'
+    if re.search(r'\b(no|nope|nah|false|negative)\b', text):
+        return 'no'
+
+    affirmative_phrases = (
+        'custom gpt',
+        'gemini live',
+        'reask',
+        'ask again',
+        'every frame',
+        'each frame',
+        'keep asking',
+        'keep reasking',
+        'work like a custom gpt',
+    )
+    negative_phrases = (
+        "don't want",
+        'do not want',
+        'without custom gpt',
+        'no custom gpt',
+        'not custom gpt',
+        'do not reask',
+        "don't reask",
+    )
+
+    if any(phrase in text for phrase in affirmative_phrases):
+        return 'yes'
+    if any(phrase in text for phrase in negative_phrases):
+        return 'no'
+
+    return ''
+
 # Configuration
 HOST = '0.0.0.0'  # Listen on all interfaces
 PORT = 8080 #port for listening
@@ -2053,7 +2099,7 @@ def fetch_pr_tools_from_github(pr, repo) -> list:
             
             cgpt_match = re.search(r'\*\*Custom GPT\*\*\s*(?:<!--.*?-->)?\s*(.+?)(?:\n\n|\n\*\*|$)', linked_body, re.IGNORECASE | re.DOTALL)
             if cgpt_match:
-                pr_custom_gpt = cgpt_match.group(1).strip().lower() in ('yes', 'true', '1')
+                pr_custom_gpt = _normalize_custom_gpt_value(cgpt_match.group(1)) == 'yes'
             
             gq_match = re.search(r'\*\*GPT Query\*\*\s*(?:<!--.*?-->)?\s*(.+?)(?:\n\n|\n\*\*|$)', linked_body, re.IGNORECASE | re.DOTALL)
             pr_gpt_query = gq_match.group(1).strip() if gq_match else ''
@@ -2413,8 +2459,7 @@ def fetch_issue_tools(issue_number: int) -> list:
         custom_gpt_match = re.search(r'\*\*Custom GPT\*\*\s*(?:<!--.*?-->)?\s*(.+?)(?:\n\n|\n\*\*|$)', issue_body, re.IGNORECASE | re.DOTALL)
         issue_custom_gpt = False
         if custom_gpt_match:
-            custom_gpt_value = custom_gpt_match.group(1).strip().lower()
-            issue_custom_gpt = custom_gpt_value in ('yes', 'true', '1')
+            issue_custom_gpt = _normalize_custom_gpt_value(custom_gpt_match.group(1)) == 'yes'
         
         gpt_query_match = re.search(r'\*\*GPT Query\*\*\s*(?:<!--.*?-->)?\s*(.+?)(?:\n\n|\n\*\*|$)', issue_body, re.IGNORECASE | re.DOTALL)
         issue_gpt_query = gpt_query_match.group(1).strip() if gpt_query_match else ''
@@ -3042,6 +3087,22 @@ Return format:
         ai_response = ai_response.strip()
         
         parsed_data = json.loads(ai_response)
+
+        parsed_custom_gpt = _normalize_custom_gpt_value(parsed_data.get('custom_gpt', ''))
+        if not parsed_custom_gpt:
+            parsed_custom_gpt = _normalize_custom_gpt_value(transcript)
+        parsed_data['custom_gpt'] = parsed_custom_gpt
+
+        missing_fields = parsed_data.get('missing_fields', [])
+        if parsed_custom_gpt:
+            missing_fields = [field for field in missing_fields if field != 'custom_gpt']
+            if parsed_custom_gpt == 'no':
+                missing_fields = [field for field in missing_fields if field != 'gpt_query']
+            elif parsed_custom_gpt == 'yes' and not parsed_data.get('gpt_query'):
+                if 'gpt_query' not in missing_fields:
+                    missing_fields.append('gpt_query')
+
+        parsed_data['missing_fields'] = missing_fields
         
         # Ensure missing_fields exists
         if 'missing_fields' not in parsed_data:
@@ -3060,6 +3121,12 @@ Return format:
         # Fallback to simple parsing
         existing_prompts = existing_data.get('original_prompts', []) if existing_data else []
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+        fallback_custom_gpt = _normalize_custom_gpt_value(transcript)
+        fallback_missing_fields = []
+        if not fallback_custom_gpt:
+            fallback_missing_fields = ['custom_gpt']
+        elif fallback_custom_gpt == 'yes' and not (existing_data or {}).get('gpt_query'):
+            fallback_missing_fields = ['gpt_query']
         return {
             'type': 'visual AT',
             'title': transcript[:100],
@@ -3068,11 +3135,11 @@ Return format:
             'solution': '',
             'implementation_details': '',
             'example_usage': '',
-            'custom_gpt': '',
+            'custom_gpt': fallback_custom_gpt,
             'gpt_query': '',
             'alternatives': '',
             'additional': '',
-            'missing_fields': ['custom_gpt'],
+            'missing_fields': fallback_missing_fields,
             'original_prompts': existing_prompts + [f"[{timestamp}] {transcript}"]
         }
 
