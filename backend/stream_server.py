@@ -3940,7 +3940,32 @@ async def handle_client(websocket):
                 # Handle request_pr_list message type
                 if msg_type == 'request_pr_list':
                     logger.info(f"Client {client_id} requested PR list")
-                    available_prs = fetch_open_prs()
+                    target_repo_for_list = data.get('target_repo') or GITHUB_REPO
+                    if target_repo_for_list == GITHUB_REPO:
+                        available_prs = fetch_open_prs()
+                    else:
+                        try:
+                            import re as _re
+                            _g = Github(GITHUB_TOKEN)
+                            _repo = _g.get_repo(target_repo_for_list)
+                            _pulls = _repo.get_pulls(state='open', sort='updated', direction='desc')
+                            available_prs = []
+                            for _pr in _pulls[:30]:
+                                _pr_text = f"{_pr.title} {_pr.body or ''}"
+                                _issues = _re.findall(r'#(\d+)', _pr_text)
+                                available_prs.append({
+                                    'number': _pr.number,
+                                    'title': _pr.title,
+                                    'body': _pr.body or '',
+                                    'branch': _pr.head.ref,
+                                    'state': _pr.state,
+                                    'mentioned_issues': _issues,
+                                    'created_at': _pr.created_at.isoformat(),
+                                    'updated_at': _pr.updated_at.isoformat(),
+                                })
+                        except Exception as _e:
+                            logger.error(f"Failed to fetch PRs from {target_repo_for_list}: {_e}")
+                            available_prs = []
                     if available_prs:
                         await websocket.send(json.dumps({
                             'type': 'pr_list',

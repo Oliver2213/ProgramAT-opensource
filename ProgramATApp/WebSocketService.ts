@@ -1108,7 +1108,7 @@ class WebSocketService {
       return false;
     }
     try {
-      this.reviewWs!.send(JSON.stringify({ type: 'request_pr_list', timestamp: Date.now() }));
+      this.reviewWs!.send(JSON.stringify({ type: 'request_pr_list', target_repo: Config.REVIEW_GITHUB_REPO, timestamp: Date.now() }));
       return true;
     } catch (error) {
       console.error('[WebSocketService] Failed to request PR list from review server:', error);
