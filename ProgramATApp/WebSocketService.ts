@@ -867,6 +867,56 @@ class WebSocketService {
       return false;
     }
   }
+
+  /**
+   * Submit a review on a PR (approve or request changes).
+   * Returns a Promise that resolves with {success, error?} after the backend acks.
+   */
+  submitToolReview(prNumber: number, approved: boolean, comment: string): Promise<{success: boolean; error?: string}> {
+    if (!this.isConnected()) {
+      return Promise.resolve({ success: false, error: 'Not connected to server.' });
+    }
+
+    return new Promise((resolve) => {
+      try {
+        const message = {
+          type: 'submit_tool_review',
+          pr_number: prNumber,
+          approved,
+          comment,
+          timestamp: Date.now(),
+        };
+
+        const handleResponse = (event: any) => {
+          try {
+            const response = JSON.parse(event.data);
+            if (response.type === 'review_submitted' && response.pr_number === prNumber) {
+              if (this.ws) this.ws.removeEventListener('message', handleResponse);
+              clearTimeout(timeout);
+              resolve({ success: true });
+            } else if (response.type === 'error') {
+              if (this.ws) this.ws.removeEventListener('message', handleResponse);
+              clearTimeout(timeout);
+              resolve({ success: false, error: response.message || 'Server error.' });
+            }
+          } catch {
+            // ignore parse errors on unrelated messages
+          }
+        };
+
+        const timeout = setTimeout(() => {
+          if (this.ws) this.ws.removeEventListener('message', handleResponse);
+          resolve({ success: false, error: 'Timed out waiting for server response.' });
+        }, 15000);
+
+        this.ws!.addEventListener('message', handleResponse);
+        this.ws!.send(JSON.stringify(message));
+        console.log(`Submitting review for PR #${prNumber}: approved=${approved}`);
+      } catch (error) {
+        resolve({ success: false, error: `Failed to send review: ${error}` });
+      }
+    });
+  }
 }
 
 // Export singleton instance

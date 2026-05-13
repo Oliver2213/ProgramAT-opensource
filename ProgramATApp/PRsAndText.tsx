@@ -10,6 +10,8 @@ import IssueSelector from './IssueSelector';
 import TextInput from './TextInput';
 import ViewLogsScreen from './ViewLogsScreen';
 import BeepService from './BeepService';
+import { AppMode } from './config';
+import ReviewPane from './ReviewPane';
 
 interface PRsAndTextProps {
   serverFeedback?: string;
@@ -23,9 +25,10 @@ interface PRsAndTextProps {
   copilotSummaries?: any[];
   copilotLogs?: any[];
   onClearCopilotData?: () => void; // Callback to clear copilot data when switching PRs
+  appMode?: AppMode;
 }
 
-type ViewMode = 'text-input' | 'pr-list' | 'view-logs';
+type ViewMode = 'text-input' | 'pr-list' | 'view-logs' | 'review';
 
 export default function PRsAndText({ 
   serverFeedback, 
@@ -38,7 +41,8 @@ export default function PRsAndText({
   copilotSessions = [],
   copilotSummaries = [],
   copilotLogs = [],
-  onClearCopilotData = () => {}
+  onClearCopilotData = () => {},
+  appMode = 'development'
 }: PRsAndTextProps) {
   const { theme } = useTheme();
   // Start with PR list view
@@ -57,12 +61,19 @@ export default function PRsAndText({
 
   const handleIssueSelect = (issue: {number: number; title: string}) => {
     onIssueSelect(issue);
-    setViewMode('text-input'); // Navigate to text input after selecting PR
+    if (appMode !== 'review') {
+      setViewMode('text-input'); // Navigate to text input after selecting PR
+    }
   };
 
   const handleCreateNew = () => {
     onNewIssue();
     setViewMode('text-input'); // Navigate to text input for new issue
+  };
+
+  const handleReviewPR = (pr: {number: number; title: string}) => {
+    setViewLogsPR(pr); // reuse this state to track the target PR
+    setViewMode('review');
   };
 
   const handleViewPRs = () => {
@@ -95,11 +106,13 @@ export default function PRsAndText({
           onCreateNew={handleCreateNew}
           onNavigateToTools={onNavigateToTools}
           onViewLogs={handleViewLogs}
+          onReviewPR={handleReviewPR}
           prs={prList}
           embedded={true}
           selectedIssue={selectedIssue}
+          reviewMode={appMode === 'review'}
         />
-      ) : viewMode === 'view-logs' && viewLogsPR ? (
+      ) : viewMode === 'view-logs' && viewLogsPR && appMode !== 'review' ? (
         <ViewLogsScreen
           prNumber={viewLogsPR.number}
           prTitle={viewLogsPR.title}
@@ -109,7 +122,13 @@ export default function PRsAndText({
           logs={copilotLogs}
           onClearData={onClearCopilotData}
         />
-      ) : (
+      ) : viewMode === 'review' && viewLogsPR ? (
+        <ReviewPane
+          prNumber={viewLogsPR.number}
+          prTitle={viewLogsPR.title}
+          onBack={handleBackToPRs}
+        />
+      ) : appMode !== 'review' ? (
         <TextInput 
           serverFeedback={serverFeedback}
           selectedIssue={selectedIssue}
@@ -117,7 +136,7 @@ export default function PRsAndText({
           onBack={handleBackToPRs}
           showBackButton={true}
         />
-      )}
+      ) : null}
     </View>
   );
 }
