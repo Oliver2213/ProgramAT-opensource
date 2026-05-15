@@ -3,6 +3,8 @@ name: Validate Visual Assistive Tool PR
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
+    branches:
+      - main
 
 jobs:
   validate-tool-pr:
