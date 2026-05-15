@@ -8,6 +8,7 @@ on:
 
 jobs:
   validate-tool-pr:
+    if: github.repository == 'program-at/ProgramAT-opensource'
     runs-on: ubuntu-latest
 
     steps:
