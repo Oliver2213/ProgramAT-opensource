@@ -11,9 +11,11 @@ permissions:
 jobs:
   grant-access:
     if: >
-    github.event.issue.number == 44 &&
-    !github.event.issue.pull_request &&
-    contains(github.event.comment.body, '/request-contributor-status')
+      ${{
+        github.event.issue.number == 44 &&
+        !github.event.issue.pull_request &&
+        contains(github.event.comment.body, '/request-contributor-status')
+      }}
     runs-on: ubuntu-latest
 
     steps:
