@@ -273,6 +273,21 @@ Since you are working from a fork of this repository, GitHub-related features ma
 
 New tools can be added by placing a Python file in the `tools/` directory. Each tool exposes a `main(image, input_data)` function and returns an audio-friendly string or dict.
 
+## Example tool ideas!
+You can make a wide variety of tools using ProgramAT! For best performance, we recommend thinking about tools that are camera based, and, for the time being, are stateless (do not need to remember their previous responses/backreference previous frames) and do not require bringing in an outside dataset.
+
+> Want to bring in stateless capabilities? Or ability to use outside datasets? Implement these features and [become a contibutor](https://github.com/program-at/ProgramAT-opensource/issues/44) to share them with the community!
+
+To get your imagination started, here are some ideas for tools people have tried before!
+
+- Plug point detector: Help find plug points/outlets in unfamiliar rooms.
+- Uber finder: Help identify an Uber by describing the colors, makes, and models of car in frame.
+- Mail sorter: Describe what important vs. junk mail means to you and get guidance on whether you should open a particular piece of mail.
+- Makeup checker: Take a photo and analyze if there are any issues with your makeup application.
+- Sock matcher: Determine if two socks out of the laundry match
+- Playing card reader: Describe a hand of playing cards, and how they change over the course of a card game
+
+
 ## Project Structure
 
 ```
