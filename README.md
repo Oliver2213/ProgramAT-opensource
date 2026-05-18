@@ -212,7 +212,7 @@ Since you are working from a fork of this repository, GitHub-related features ma
 
 ## Usage
 
-1. **Select a Tool** — Navigate to the **Tools** tab, browse the available tools, and tap one to select it.
+1.  **Select a Tool** — Navigate to the **Tools** tab, browse the available tools, and tap one to select it.
 
 2. **Run** — The Tool Runner opens with a live camera preview. Tap **Run** to execute the tool on single frames, or **Stream** to process frames continuously. Results are spoken aloud via TTS.
 
@@ -220,7 +220,12 @@ Since you are working from a fork of this repository, GitHub-related features ma
 
 4. **Development mode** — Use the **PRs** tab to browse open pull requests, select one to load its tools, and send text updates to GitHub issues.
 
-Creation instructions coming soon.
+5. **Tool creation** — To instead create a new tool, from development mode, select the "Create New Issue Instead" button in the PRs tab. Then, type or dictate the tool you would like to make into the text box, then submit. If more information is needed, the app will ask for it: in this case, dictate or type an answer to the request and resubmit, it will be appended to your initial request. Once the request is complete, the app will tell you it has made a new issue successfully. Copilot will automatically be assigned and create a relevant pull request. From there, wait for it to generate, and then run it as described in the earlier usage steps!
+   * If you prefer to do this from desktop, you can also fill out the issue template titled "Visual Assistive Technology" on the Github website
+  
+6. **Tool iteration** — To update or modify a tool, in development mode, click a relevant PR, and instead of choosing open tools as you would to run a tool, select update issue. Then, type or dictate the change you would like to make and submit. Copilot will automatically be assigned and make the desired changes to the relevant tool.
+   * If you would prefer to do this from desktop, you can also simply leave a comment on the relevant pull request from the Github website. In this case, you will be responsible for appending `@copilot` to your comment to assign Copilot.
+
  
 ## Supported Input Modes
 
