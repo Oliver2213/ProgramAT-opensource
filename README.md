@@ -56,22 +56,13 @@ This is a React Native app that facilitates AT creation, iteration, and testing 
    cd ..
    ```
 
-5. **Set up the backend**
-
-   ```bash
-   cd ../backend
-   python3 -m venv .venv
-   source .venv/bin/activate
-   pip install -r requirements.txt
-   ```
-
-6. **Create the backend `.env` file**
+5. **Create the backend `.env` file**
 
    ```bash
    cp .env.example .env
    ```
 
-7. **Fill in the values in `backend/.env`**
+6. **Fill in the values in `backend/.env`**
    - `LLM_MODEL`: model name used by LiteLLM (for example `gemini-3-flash-preview` or `openai/gpt-4o`). Change this to switch provider/model without modifying code.
    - Provider API keys: `GEMINI_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`
    - `GITHUB_TOKEN`
@@ -182,7 +173,18 @@ You can skip to step 3 if ngrok is already installed and configured, or if you a
    ngrok config add-authtoken YOUR_NGROK_AUTHTOKEN
    ```
 
-3. **Activate the virtual environment and start the backend server**
+> Notice: You can skip steps 3-6 by giving the prompt in `COPILOT_SETUP_PROMPT.md` to Copilot (or your coding agent) and let it set up the server and use ngrok for you. After it gives you the forwarding address, you can go to step 7 and type it in the mobile application.
+
+3. **Set up the backend**
+
+   ```bash
+   cd ../backend
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+4. **Activate the virtual environment and start the backend server**
 
    ```bash
    cd backend
@@ -192,18 +194,18 @@ You can skip to step 3 if ngrok is already installed and configured, or if you a
 
    The server listens on `0.0.0.0:8080` by default.
 
-4. **Open up another terminal or window and start the ngrok tunnel**
+5. **Open up another terminal or window and start the ngrok tunnel**
 
    ```bash
    ngrok http 8080
    ```
 
-5. **Copy your forwarding address**
+6. **Copy your forwarding address**
    If you are using ngrok, keep the terminal created in step 4 open. ngrok will print a forwarding address, which is the public address your app should connect to. Copy this address.
 
    If you are using a paid hosting service, your VM should list a public IP address, copy this IP address.
 
-6. **Paste the forwarding address into the app**
+7. **Paste the forwarding address into the app**
    Change the prefix of the forwarding address from **https** to **wss** because we are using a websocket. Open ProgramAT app on your mobile device, go to the server address field in Settings, paste the ngrok forwarding address, and tap **Connect**.
 
 ## Troubleshooting
