@@ -2,58 +2,66 @@ I want you to fully set up and run this repository locally for me.
 
 Important constraints:
 - DO NOT try to acquire API keys or create accounts for me.
-- I have ALREADY created and filled in backend/.env.
-- Do NOT overwrite or recreate backend/.env.
-- You may read values from backend/.env when needed.
-- You ARE allowed to:
-  - create/edit files
-  - install dependencies
-  - create virtual environments
-  - configure ngrok
-  - start servers
-  - run commands
-  - debug issues
-  - modify configuration files other than backend/.env
-  - verify the server is working
+- The repository already contains backend/.env.example.
+- You should create backend/.env from that template automatically.
+- You should fill backend/.env using the values provided below.
+- Do NOT ask me again for these values unless one is invalid or missing.
 
-Your goal:
+================ PROVIDED ENV VALUES ================
+
+GEMINI_API_KEY=PASTE_GEMINI_KEY_HERE
+OPENAI_API_KEY=PASTE_OPENAI_KEY_HERE (optional)
+ANTHROPIC_API_KEY=PASTE_ANTHROPIC_KEY_HERE (optional)
+
+GITHUB_TOKEN=PASTE_GITHUB_TOKEN_HERE
+GITHUB_REPO=your-username/your-fork-name
+
+NGROK_AUTHTOKEN=PASTE_NGROK_TOKEN_HERE
+
+GOOGLE_APPLICATION_CREDENTIALS=backend/credentials.json
+
+LLM_MODEL=gemini-3-flash-preview
+
+=====================================================
+
+Additional notes:
+- If GOOGLE_APPLICATION_CREDENTIALS points to a missing file, tell me exactly where to place the credentials JSON.
+- If some provider keys are unused, leave them in the .env file anyway.
+- Never print secrets back into logs after writing them.
+
+Your goals:
 1. Read the README carefully.
-2. Set up the backend environment automatically.
-3. Use the existing backend/.env configuration.
-4. Validate that required environment variables exist.
-5. If something is missing from backend/.env, tell me exactly which variable is missing instead of recreating the file.
-6. Install ngrok if it is missing.
-7. Configure ngrok with my authtoken if needed.
-8. Start the backend server.
-9. Start ngrok forwarding for port 8080.
-10. Extract the public forwarding URL automatically.
-11. Convert the URL from https:// to wss://.
-12. Print the exact websocket URL I should paste into the app settings.
-13. If anything fails, debug and fix it automatically.
+2. Create backend/.env from backend/.env.example if needed.
+3. Insert the provided values into backend/.env.
+4. Preserve existing configuration when possible.
+5. Create backend/.venv if it does not exist.
+6. Install all backend dependencies.
+7. Install ngrok if missing.
+8. Configure ngrok using the provided NGROK_AUTHTOKEN.
+9. Start the backend server.
+10. Start ngrok forwarding on port 8080.
+11. Automatically retrieve the ngrok forwarding URL.
+12. Convert the forwarding URL from:
+   https://...
+   to:
+   wss://...
+13. Print the final websocket URL clearly for me to paste into the app.
 
-Implementation details:
+Implementation requirements:
 - Use Python 3.11 if required.
-- Create backend/.venv if it does not exist.
-- Install dependencies from requirements.txt.
-- Use the repository’s documented commands whenever possible.
-- Prefer automated shell commands over asking me to do manual setup.
-- Explain briefly what you are doing at each major step.
-- If a command fails, investigate logs and retry with fixes.
-- Keep going until the websocket server is reachable through ngrok.
+- Use repository-documented commands whenever possible.
+- Prefer autonomous execution over asking me to run commands manually.
+- If something fails:
+  - inspect logs
+  - diagnose the issue
+  - attempt at least two fixes automatically before asking me for help
 
 Important:
-- Never overwrite backend/.env.
-- Never expose secrets in logs or output.
-- Preserve all existing configuration values.
+- Never overwrite secrets unnecessarily.
+- Never expose secrets in output logs.
+- Keep going until:
+  - the backend server is running
+  - ngrok forwarding works
+  - the websocket URL is usable
 
-When the server is running:
-- Verify the backend is listening on port 8080.
-- Verify ngrok forwarding works.
-- Show me:
-  - local server address
-  - ngrok forwarding address
-  - final wss:// websocket URL
-
-Assume I prefer autonomous behavior unless a secret/token is strictly required from me.
-
-Do not ask me to debug terminal issues manually unless you have already attempted at least two fixes yourself.
+Assume I prefer autonomous behavior unless external login/authentication is strictly required.
