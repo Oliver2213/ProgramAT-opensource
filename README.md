@@ -42,14 +42,23 @@ This is a React Native app that facilitates AT creation, iteration, and testing 
    cd ProgramAT-opensource
    ```
 
-3. Optional (required if you are building the app): **Install React Native dependencies**
+3. **Get the API keys**
+   See the next two section for detailed description.
+
+### Running the Mobile App Locally (Optional)
+
+You only need this section if you want to make changes to the frontend and run the React Native app yourself. If you are using the TestFlight version of the app, you can skip this section.
+
+This section requires an iPhone and XCode on Mac system.
+
+1. **Install React Native dependencies**
 
    ```bash
    cd ProgramATApp
    npm install
    ```
 
-4. Optional (required if you are building the app): **Install iOS dependencies (iOS only)**
+2. **Install iOS dependencies (iOS only)**
 
    ```bash
    cd ios
@@ -57,8 +66,28 @@ This is a React Native app that facilitates AT creation, iteration, and testing 
    cd ..
    ```
 
-5. **Get the API keys**
-   See the next section for detailed description.
+3. **Start the React Native development server**
+
+   ```bash
+   cd ProgramATApp
+   npx react-native start
+   ```
+
+   This starts the React Native Metro development server.
+
+4. **Connect your phone**
+   Plug your iPhone into your computer while running the development server.
+
+   Depending on your setup, you may also need to:
+   - Trust the computer on your iPhone.
+   - Turn on Developer Mode on your iPhone.
+   - Open the app through Xcode or the React Native development workflow.
+
+Notes:
+
+- If you are using the TestFlight version of the app, you do not need to run the React Native development server.
+- The backend server and the React Native development server are separate processes and must be started in different terminals or windows.
+- The backend handles tool execution and AI processing. The React Native development server only serves the mobile app frontend during local development.
 
 ### API Keys
 
@@ -74,32 +103,6 @@ Use the table below as a quick reference for what each value does.
 | `GITHUB_TOKEN` | For GitHub features | GitHub personal access token with `repo` scope |
 | `GITHUB_REPO` | Yes (to access your own tools) | Target repo in `owner/repo` format |
 | `HOST` / `PORT` | Optional | Server bind address (default `0.0.0.0:8080`) |
-
-#### Alternative: Set environment variables directly
-
-Instead of using `backend/.env`, you can export the variables in your shell before starting the backend:
-
-**Linux / macOS:**
-
-```bash
-export LLM_MODEL="gemini-3-flash-preview"
-export GEMINI_API_KEY="your_gemini_key_here"
-export OPENAI_API_KEY="your_openai_key_here"
-export GITHUB_TOKEN="your_token_here"
-export GITHUB_REPO="username/your-programat-fork"
-export GOOGLE_APPLICATION_CREDENTIALS="/home/username/path/to/credentials.json"
-```
-
-**Windows PowerShell:**
-
-```powershell
-$env:LLM_MODEL="gemini-3-flash-preview"
-$env:GEMINI_API_KEY = "your_key_here"
-$env:OPENAI_API_KEY="your_openai_key_here"
-$env:GITHUB_TOKEN = "your_token_here"
-$env:GITHUB_REPO = "username/your-programat-fork"
-$env:GOOGLE_APPLICATION_CREDENTIALS = "C:\path\to\credentials.json"
-```
 
 ### How to Get the Keys
 
@@ -152,7 +155,7 @@ The difference between these two options, aside from cost, is that when running 
 
 We provide instructions here for hosting from your personal machine. If you would prefer to use a paid hosting service, follow the instructions there for setup.
 
-You can skip to step 3 if ngrok is already installed and configured, or if you are using a paid hosting service.
+   > Notice: You can skip steps 1-2 if ngrok is already installed and configured in your terminal, or if you are using a paid hosting service.
 
 1. **Install ngrok**
    Download ngrok for your system from <https://ngrok.com/download> and make sure `ngrok version` works in your terminal.
@@ -164,7 +167,7 @@ You can skip to step 3 if ngrok is already installed and configured, or if you a
    ngrok config add-authtoken YOUR_NGROK_AUTHTOKEN
    ```
 
-> Notice: You can skip steps 3-8 by filling the API keys into the prompt in `COPILOT_SETUP_PROMPT.md` and giving it to Copilot (or your coding agent) and let it set up the server and use ngrok for you. After it gives you the forwarding address, you can go to step 9 and type it in the mobile application.
+   > Notice: You can skip steps 3-8 by filling the API keys into the prompt in `COPILOT_SETUP_PROMPT.md` and giving it to Copilot (or your coding agent) and let it set up the server and use ngrok for you. After it gives you the forwarding address, you can go to step 9 and type it in the mobile application.
 
 3. **Create the backend `.env` file**
 
