@@ -1,12 +1,10 @@
 # ProgramAT
 
 This repository contains code for an AI-powered assistive technology platform, ProgramAT. ProgramAT equips blind or low-vision (BLV) users to create custom camera-based assistive technologies via natural language instructions. BLV users can test their camera-based ATs with input from their iPhone's camera. The system has 3 major components:
-
-- a mobile app, installable via TestFlight. Link will be provided closer to the event.
+- a mobile app, [installable via TestFlight](https://testflight.apple.com/join/ahpWstQr).
 - a server that runs the computation for the camera-based AT you build using the app. This interfaces with a GitHub repository, and runs the AI models necessary for your task. Instructions to set a server up will be updated shortly.
-- ProgramAT GitHub repository. This is where your tools will live. It will be a fork of this repository for each individual user. We recommend forking closer to the event date.
+- ProgramAT GitHub repository. This is where your tools will live. It will be a fork of this repository for each individual user. We recommend forking closer to the event date, or keeping an eye on when your fork is behind the parent repository in order to sync.
 
-> Notice: Setup instructions and TestFlight link will be updated closer to the event.
 
 ## What is the ProgramAT Mobile App?
 
@@ -17,7 +15,10 @@ This is a React Native app that facilitates AT creation, iteration, and testing 
 ### Prerequisites
 
 - A [GitHub account](https://github.com/). Refer to [screen reader friendly instructions by Jeff Bishop](https://community-access.org/git-going-with-github/docs/00-pre-workshop-setup.html).
-- A computer with decent compute capacity, or ability to host a VM with decent compute capacity. Exact specifications coming soon. A GPU is not required.
+- A [Copilot subscription](https://github.com/features/copilot/plans).
+- Github mobile, installed and logged in
+- Testflight, installed from Apple's app store
+- A computer with decent compute capacity, or ability to host a VM with decent compute capacity. For best performance, we recommend around 20G of available disk space wherever you plan to host. A GPU is not required.
 - A screen reader and an accessible web browser.
 - iPhone 12 or higher running iOS 26. Apple Intelligence or AI-specific features for processors are not required.
 - Python 3.11+ (for the backend server)
@@ -231,7 +232,7 @@ Since you are working from a fork of this repository, GitHub-related features ma
 
 ## Usage
 
-1. **Select a Tool** — Navigate to the **Tools** tab, browse the available tools, and tap one to select it.
+1.  **Select a Tool** — Navigate to the **Tools** tab, browse the available tools, and tap one to select it.
 
 2. **Run** — The Tool Runner opens with a live camera preview. Tap **Run** to execute the tool on single frames, or **Stream** to process frames continuously. Results are spoken aloud via TTS.
 
@@ -239,15 +240,20 @@ Since you are working from a fork of this repository, GitHub-related features ma
 
 4. **Development mode** — Use the **PRs** tab to browse open pull requests, select one to load its tools, and send text updates to GitHub issues.
 
-Creation instructions coming soon.
+5. **Tool creation** — To instead create a new tool, from development mode, select the "Create New Issue Instead" button in the PRs tab. Then, type or dictate the tool you would like to make into the text box, then submit. If more information is needed, the app will ask for it: in this case, dictate or type an answer to the request and resubmit, it will be appended to your initial request. Once the request is complete, the app will tell you it has made a new issue successfully. Copilot will automatically be assigned and create a relevant pull request. From there, wait for it to generate, and then run it as described in the earlier usage steps!
+   * If you prefer to do this from desktop, you can also fill out the issue template titled "Visual Assistive Technology" on the Github website
+  
+6. **Tool iteration** — To update or modify a tool, in development mode, click a relevant PR, and instead of choosing open tools as you would to run a tool, select update issue. Then, type or dictate the change you would like to make and submit. Copilot will automatically be assigned and make the desired changes to the relevant tool.
+   * If you would prefer to do this from desktop, you can also simply leave a comment on the relevant pull request from the Github website. In this case, you will be responsible for appending `@copilot` to your comment to assign Copilot.
+
  
 ## Supported Input Modes
 
 - **Streaming mode** — Tools process frames continuously and return real-time audio feedback
 - **Single-frame mode** — Capture one frame and get a detailed result
 - **Real-time camera streaming** at configurable FPS via `react-native-vision-camera`
-- **Conversation mode** — Ask follow-up questions about tool results via a Chat tab
-- **Custom GPT-like tools** — Tools flagged as Custom GPT use the configured live/streaming provider (Gemini Live).
+- **Conversation mode** — Ask follow-up questions about tool results via a Chat tab. This becomes available after a single-frame mode interaction.
+- **Custom GPT-like tools** — Tools flagged as Custom GPT use Gemini Live for streaming multimodal conversations instead of executing code per frame
 
 ## Supported Feedback Modes
 
@@ -269,6 +275,13 @@ Creation instructions coming soon.
 - Tools are pulled from the `main` branch only
 - The PR browser tab is hidden; users go straight to the tool list
 
+### Review mode
+- Tools are pulled from the main repository server (as opposed to your self-hosted server), specifically PRs people have put up for review
+- You can test tools as you would in development mode, but cannot directly create or edit tools.
+   - If you would like a tool of yours to be visible in review mode, create it locally, then submit a PR!
+- You can review tools (approve if they work as intended, request changes otherwise)
+   - Note that for this mode to work properly, you should first [become a contributor](https://github.com/program-at/ProgramAT-opensource/issues/44). These permissions are needed to leave reviews.
+
 ## Built-In Tools
 
 | Tool | Description | Model |
@@ -282,6 +295,21 @@ Creation instructions coming soon.
 | **Clothing Recognition** | Identifies the most prominent clothing item and its features | LiteLLM Vision |
 
 New tools can be added by placing a Python file in the `tools/` directory. Each tool exposes a `main(image, input_data)` function and returns an audio-friendly string or dict.
+
+## Example tool ideas!
+You can make a wide variety of tools using ProgramAT! For best performance, we recommend thinking about tools that are camera based, and, for the time being, are stateless (do not need to remember their previous responses/backreference previous frames) and do not require bringing in an outside dataset.
+
+> Want to bring in stateless capabilities? Or ability to use outside datasets? Implement these features and [become a contributor](https://github.com/program-at/ProgramAT-opensource/issues/44) to share them with the community!
+
+To get your imagination started, here are some ideas for tools people have tried before!
+
+- Plug point detector: Help find plug points/outlets in unfamiliar rooms.
+- Uber finder: Help identify an Uber by describing the colors, makes, and models of car in frame.
+- Mail sorter: Describe what important vs. junk mail means to you and get guidance on whether you should open a particular piece of mail.
+- Makeup checker: Take a photo and analyze if there are any issues with your makeup application.
+- Sock matcher: Determine if two socks out of the laundry match
+- Playing card reader: Describe a hand of playing cards, and how they change over the course of a card game
+
 
 ## Project Structure
 
