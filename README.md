@@ -186,16 +186,14 @@ We provide instructions here for hosting from your personal machine. If you woul
 
    ```bash
    cd ../backend
-   python3 -m venv .venv
-   source .venv/bin/activate
+   python3 -m venv .venv (python -m venv .venv for Windows powershell)
+   source .venv/bin/activate (.\.venv\Scripts\Activate.ps1 for Windows powershell)
    pip install -r requirements.txt
    ```
 
 6. **Activate the virtual environment and start the backend server**
 
    ```bash
-   cd backend
-   source .venv/bin/activate
    python stream_server.py
    ```
 
