@@ -43,7 +43,7 @@ This is a React Native app that facilitates AT creation, iteration, and testing 
    ```
 
 3. **Get the API keys**
-   See the next two section for detailed description.
+   See the API keys section for a detailed description.
 
 ### Running the Mobile App Locally (Optional)
 
