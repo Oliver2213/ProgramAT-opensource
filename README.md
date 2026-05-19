@@ -161,7 +161,7 @@ We provide instructions here for hosting from your personal machine. If you woul
    Download ngrok for your system from <https://ngrok.com/download> and make sure `ngrok version` works in your terminal.
 
 2. **Connect ngrok to your account**
-   Follow the instructions on the downloading page to sign up for an account and get your authtoken in the ngrok dashboard. Configure it in your terminal.
+   Sign up or log in your account in the downloading page. Go to **Getting started** -> **Your authtoken** -> **Copy** to get your authtoken. Configure it in your terminal.
 
    ```bash
    ngrok config add-authtoken YOUR_NGROK_AUTHTOKEN
