@@ -57,6 +57,8 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
+            Before starting, read the file `.github/copilot-instructions.md` for project conventions and follow them strictly.
+
             Implement the request described in GitHub issue #${{ github.event.issue.number }}.
             Repository: ${{ github.repository }}
             Issue title: ${{ github.event.issue.title }}
