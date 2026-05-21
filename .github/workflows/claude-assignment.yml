@@ -67,4 +67,4 @@ jobs:
             - Do not push to main.
             - Commit changes to a new branch.
             - Create or prepare a pull request for human review.
-            claude_args: "--allowedTools 'Bash(git:*),Bash(find:*),Bash(ls:*),View,GlobTool,GrepTool,Write,Edit' --max-turns 8 --model claude-sonnet-4-5"
+          claude_args: '--allowedTools "Bash(git:*),Bash(find:*),Bash(ls:*),View,GlobTool,GrepTool,Write,Edit" --max-turns 8 --model claude-sonnet-4-5'
