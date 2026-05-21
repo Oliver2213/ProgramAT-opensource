@@ -7,6 +7,8 @@ name: Claude VAT Implementation
 #    a. Install the app on your repo: https://github.com/apps/claude
 #    b. Connect it to your Anthropic account: https://claude.ai/settings → GitHub
 #    Both steps are required — doing only one will cause OIDC token exchange to fail.
+# 3. Trigger: Add the label 'ready-for-claude' to an issue that contains 'Template: VAT'
+#    in its body. The action will not run without both conditions being true.
 
 on:
   issues:
@@ -67,4 +69,4 @@ jobs:
             - Do not push to main.
             - Commit changes to a new branch.
             - Create or prepare a pull request for human review.
-          claude_args: '--allowedTools "Bash(git:*),Bash(find:*),Bash(ls:*),View,GlobTool,GrepTool,Write,Edit" --max-turns 8 --model claude-sonnet-4-5'
+          claude_args: '--allowedTools "Bash(git:*),Bash(find:*),Bash(ls:*),View,GlobTool,GrepTool,Write,Edit" --max-turns 16 --model claude-sonnet-4-5'
