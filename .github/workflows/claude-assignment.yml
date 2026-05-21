@@ -1,4 +1,13 @@
 name: Claude VAT Implementation
+
+# PREREQUISITES - this workflow will silently fail without these:
+# 1. Secret: Add ANTHROPIC_API_KEY to your repository secrets
+#    (Settings → Secrets and variables → Actions → New repository secret)
+# 2. GitHub App: Install the Claude GitHub App AND link it to your Anthropic account:
+#    a. Install the app on your repo: https://github.com/apps/claude
+#    b. Connect it to your Anthropic account: https://claude.ai/settings → GitHub
+#    Both steps are required — doing only one will cause OIDC token exchange to fail.
+
 on:
   issues:
     types: [labeled]
@@ -58,4 +67,4 @@ jobs:
             - Do not push to main.
             - Commit changes to a new branch.
             - Create or prepare a pull request for human review.
-          claude_args: "--allowedTools 'Bash(git:*),Bash(find:*),Bash(ls:*),View,GlobTool,GrepTool'"
+            claude_args: "--allowedTools 'Bash(git:*),Bash(find:*),Bash(ls:*),View,GlobTool,GrepTool,Write,Edit' --max-turns 8 --model claude-sonnet-4-5"
