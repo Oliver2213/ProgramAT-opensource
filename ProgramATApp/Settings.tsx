@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Config, { AppMode } from './config';
 import WebSocketService from './WebSocketService';
+import { getModelPreference, setModelPreference } from './ModelPreference';
 import { useTheme } from './ThemeContext';
 
 const SERVER_URL_KEY = '@server_url';
@@ -34,14 +35,25 @@ export default function Settings({ appMode, onModeChange }: SettingsProps) {
   const [serverUrl, setServerUrl] = useState('');
   const [currentServerUrl, setCurrentServerUrl] = useState(Config.WEBSOCKET_SERVER_URL);
 
+  // Mirror of ModelPreference for re-render. null = use server default.
+  const [selectedModel, setSelectedModel] = useState<string | null>(getModelPreference());
+  const [serverDefaultModel, setServerDefaultModel] = useState<string>('');
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
+
   useEffect(() => {
     setIsConnected(WebSocketService.isConnected());
     setCurrentServerUrl(WebSocketService.getServerUrl());
     loadSavedServerUrl();
+    // Re-sync from ModelPreference in case it loaded after our initial render.
+    setSelectedModel(getModelPreference());
 
     const checkConnection = setInterval(() => {
       setIsConnected(WebSocketService.isConnected());
       setCurrentServerUrl(WebSocketService.getServerUrl());
+      // Poll the service for the latest cached capabilities — picks up the
+      // server's reported default + preset list once the socket handshakes.
+      setServerDefaultModel(WebSocketService.getDefaultModel());
+      setAvailableModels(WebSocketService.getAvailableModels());
     }, 1000);
 
     return () => clearInterval(checkConnection);
@@ -75,6 +87,12 @@ export default function Settings({ appMode, onModeChange }: SettingsProps) {
     await AsyncStorage.setItem(SERVER_URL_KEY, trimmed);
     Alert.alert('Server Saved', `Connecting to ${trimmed}...`, [{ text: 'OK' }]);
     WebSocketService.setServerUrl(trimmed, true);
+  };
+
+  // Single entry point: null clears the choice (use server default), a string picks it.
+  const applyModel = async (model: string | null) => {
+    setSelectedModel(model);
+    await setModelPreference(model);
   };
 
   const handleClearServerUrl = async () => {
@@ -413,6 +431,46 @@ export default function Settings({ appMode, onModeChange }: SettingsProps) {
               accessibilityHint="Long press to copy URL">
               {currentServerUrl || 'Not configured'}
             </Text>
+          </View>
+        </View>
+
+        {/* AI Model Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]} accessibilityRole="header">AI Model</Text>
+
+          <View style={[styles.settingCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+            <View style={styles.settingInfo}>
+              <Text style={[styles.settingLabel, { color: theme.text }]}>Active model</Text>
+              <Text style={[styles.settingDescription, { color: theme.textSecondary }]}>
+                {selectedModel
+                  ? `Using: ${selectedModel}`
+                  : serverDefaultModel
+                    ? `Using server default: ${serverDefaultModel}`
+                    : 'Connect to see available models'}
+              </Text>
+            </View>
+
+            {[null, ...availableModels].map((model) => {
+              const selected = selectedModel === model;
+              const label = model ?? `Use server default${serverDefaultModel ? ` (${serverDefaultModel})` : ''}`;
+              const color = model === null ? theme.info : theme.primary;
+              return (
+                <TouchableOpacity
+                  key={model ?? '__default__'}
+                  style={[
+                    styles.modeButton,
+                    { borderColor: color, marginBottom: 8 },
+                    selected && { backgroundColor: color + '20' }
+                  ]}
+                  onPress={() => applyModel(model)}
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel={model ? `Use ${model}` : 'Use server default model'}
+                  accessibilityState={{ selected }}>
+                  <Text style={[styles.modeButtonText, { color }]}>{label}</Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
 
