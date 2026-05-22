@@ -9,6 +9,7 @@ import {
   Text,
   View,
   TouchableOpacity,
+  Pressable,
   ScrollView,
   Alert,
   Switch,
@@ -20,6 +21,7 @@ import Config, { AppMode } from './config';
 import WebSocketService from './WebSocketService';
 import { getModelPreference, setModelPreference } from './ModelPreference';
 import { useTheme } from './ThemeContext';
+import ModelPickerScreen from './ModelPickerScreen';
 
 const SERVER_URL_KEY = '@server_url';
 
@@ -39,6 +41,7 @@ export default function Settings({ appMode, onModeChange }: SettingsProps) {
   const [selectedModel, setSelectedModel] = useState<string | null>(getModelPreference());
   const [serverDefaultModel, setServerDefaultModel] = useState<string>('');
   const [availableModels, setAvailableModels] = useState<string[]>([]);
+  const [showModelPicker, setShowModelPicker] = useState(false);
 
   useEffect(() => {
     setIsConnected(WebSocketService.isConnected());
@@ -201,6 +204,18 @@ export default function Settings({ appMode, onModeChange }: SettingsProps) {
       }
     }
   };
+
+  if (showModelPicker) {
+    return (
+      <ModelPickerScreen
+        onBack={() => setShowModelPicker(false)}
+        selectedModel={selectedModel}
+        serverDefaultModel={serverDefaultModel}
+        availableModels={availableModels}
+        onSelect={applyModel}
+      />
+    );
+  }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['bottom']}>
@@ -438,40 +453,33 @@ export default function Settings({ appMode, onModeChange }: SettingsProps) {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.text }]} accessibilityRole="header">AI Model</Text>
 
-          <View style={[styles.settingCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
-            <View style={styles.settingInfo}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.settingCard,
+              styles.modelRow,
+              { backgroundColor: theme.card, borderColor: theme.border },
+              pressed && { opacity: 0.6 },
+            ]}
+            onPress={() => setShowModelPicker(true)}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Choose AI model"
+            accessibilityHint="Double tap to open the model picker"
+            accessibilityValue={{
+              text: selectedModel ?? (serverDefaultModel ? `Server default (${serverDefaultModel})` : 'Server default'),
+            }}>
+            <View style={styles.modelRowText}>
               <Text style={[styles.settingLabel, { color: theme.text }]}>Active model</Text>
               <Text style={[styles.settingDescription, { color: theme.textSecondary }]}>
                 {selectedModel
-                  ? `Using: ${selectedModel}`
+                  ? selectedModel
                   : serverDefaultModel
-                    ? `Using server default: ${serverDefaultModel}`
+                    ? `Server default (${serverDefaultModel})`
                     : 'Connect to see available models'}
               </Text>
             </View>
-
-            {[null, ...availableModels].map((model) => {
-              const selected = selectedModel === model;
-              const label = model ?? `Use server default${serverDefaultModel ? ` (${serverDefaultModel})` : ''}`;
-              const color = model === null ? theme.info : theme.primary;
-              return (
-                <TouchableOpacity
-                  key={model ?? '__default__'}
-                  style={[
-                    styles.modeButton,
-                    { borderColor: color, marginBottom: 8 },
-                    selected && { backgroundColor: color + '20' }
-                  ]}
-                  onPress={() => applyModel(model)}
-                  accessible={true}
-                  accessibilityRole="button"
-                  accessibilityLabel={model ? `Use ${model}` : 'Use server default model'}
-                  accessibilityState={{ selected }}>
-                  <Text style={[styles.modeButtonText, { color }]}>{label}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+            <Text style={[styles.chevron, { color: theme.textSecondary }]}>›</Text>
+          </Pressable>
         </View>
 
         {/* App Info Section */}
@@ -756,5 +764,18 @@ const styles = StyleSheet.create({
   modeButtonText: {
     fontSize: 13,
     fontWeight: '600',
+  },
+  modelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  modelRowText: {
+    flex: 1,
+    marginRight: 12,
+  },
+  chevron: {
+    fontSize: 24,
+    fontWeight: '400',
   },
 });
